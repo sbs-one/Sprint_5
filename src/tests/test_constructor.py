@@ -1,37 +1,30 @@
-import random
-import string
-import time
-
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-from conftest import driver
-
-def test_constructor_navigation_to_adds(driver):
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, '//h1[contains(text(),"Соберите бургер")]')))
-    driver.find_element(By.XPATH, '//span[contains(text(),"Начинки")]').click()
-    time.sleep(3)
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, '//p[contains(text(),"Мясо бессмертных моллюсков Protostomia")]')))
-
-def test_constructor_navigation_to_sous(driver):
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, '//h1[contains(text(),"Соберите бургер")]')))
-    driver.find_element(By.XPATH, '//span[contains(text(),"Соусы")]').click()
-    time.sleep(3)
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, '//p[contains(text(),"Соус Spicy-X")]')))
+from locators import ConstructorPageLocators
 
 
-def test_constructor_navigation_to_bread(driver):
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, '//h1[contains(text(),"Соберите бургер")]')))
-    driver.find_element(By.XPATH, '//span[contains(text(),"Начинки")]').click()
-    time.sleep(3)
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, '//p[contains(text(),"Мясо бессмертных моллюсков Protostomia")]')))
-    driver.find_element(By.XPATH, '//span[contains(text(),"Булки")]').click()
-    time.sleep(3)
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, '//p[contains(text(),"Флюоресцентная булка R2-D3")]')))
+class TestConstructorNavigation:
+
+    def test_constructor_navigation_to_adds(self, driver):
+        WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            ConstructorPageLocators.HEADER))
+        driver.find_element(*ConstructorPageLocators.ADDS_LINK).click()
+        assert WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            ConstructorPageLocators.MEAT_DESCRIPTION)) is not None
+
+    def test_constructor_navigation_to_sous(self, driver):
+        WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            ConstructorPageLocators.HEADER))
+        driver.find_element(*ConstructorPageLocators.SOUS_LINK).click()
+        assert WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            ConstructorPageLocators.SPICY_X_DESCRIPTION)) is not None
+
+    def test_constructor_navigation_to_bread(self, driver):
+        WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            ConstructorPageLocators.HEADER))
+        driver.find_element(*ConstructorPageLocators.ADDS_LINK).click()
+        WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            ConstructorPageLocators.MEAT_DESCRIPTION))
+        driver.find_element(*ConstructorPageLocators.BREAD_LINK).click()
+        assert WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            ConstructorPageLocators.R2D3_DESCRIPTION)) is not None

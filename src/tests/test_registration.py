@@ -1,78 +1,83 @@
 import random
 import string
-import time
 
-from selenium.webdriver.common.by import By
+import pytest
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-from conftest import driver
 
-random_digits = ''.join(random.choices(string.digits, k=5))
-email = f'stepan_shalagin_6345402_{random_digits}@yandex.ru'
-
-
-def test_registration(driver):
-    #Проверяем первую страницу и нажимаем на Личный кабинет
-    WebDriverWait(driver, 2).until(expected_conditions.element_to_be_clickable(
-        (By.XPATH, "//p[contains(text(),'Личный Кабинет')]")))
-    driver.find_element(By.XPATH, "//p[contains(text(),'Личный Кабинет')]").click()
-    WebDriverWait(driver, 3).until(expected_conditions.element_to_be_clickable(
-        (By.XPATH, "//a[contains(text(),'Зарегистрироваться')]")))
-    driver.find_element(By.XPATH, "//a[contains(text(),'Зарегистрироваться')]").click()
-    #Переходим на страницу Регистрации
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, "//button[contains(text(),'Зарегистрироваться')]")))
-    driver.find_element(
-        By.XPATH, "//label[text()='Имя']/following-sibling::input[@type='text']").send_keys('stepan')
-    driver.find_element(
-        By.XPATH, "//label[text()='Email']/following-sibling::input").send_keys(email)
-    driver.find_element(
-        By.CSS_SELECTOR, "input[name='Пароль']").send_keys('123456')
-    driver.find_element(
-        By.XPATH, '//button[contains(text(), "Зарегистрироваться")]').click()
-    #Заходим по созданному аккаунту
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, "//h2[contains(text(),'Вход')]")))
-    driver.find_element(
-        By.XPATH, "//label[text()='Email']/following-sibling::input").send_keys(email)
-    driver.find_element(
-        By.XPATH, '//input[@type="password" and @name="Пароль"]').send_keys('123456')
-    driver.find_element(
-        By.XPATH, '//button[contains(text(), "Войти")]').click()
-    #Проверяем логин
-    WebDriverWait(driver, 3).until(expected_conditions.url_matches("https://stellarburgers.nomoreparties.site/"))
-    driver.find_element(By.XPATH, "//p[contains(text(),'Личный Кабинет')]").click()
-    WebDriverWait(driver, 3).until(expected_conditions.text_to_be_present_in_element_value(
-        (By.XPATH, "//label[text()='Логин']/following-sibling::input"), email))
+from data import Data
+from data import Pages
+from locators import RegistrationPageLocators
 
 
+class TestRegistration:
 
-def test_incorrect_password(driver):
-    #Проверяем первую страницу и нажимаем на Личный кабинет
-    WebDriverWait(driver, 2).until(expected_conditions.element_to_be_clickable(
-        (By.XPATH, "//p[contains(text(),'Личный Кабинет')]")))
-    driver.find_element(By.XPATH, "//p[contains(text(),'Личный Кабинет')]").click()
-    WebDriverWait(driver, 3).until(expected_conditions.element_to_be_clickable(
-        (By.XPATH, "//a[contains(text(),'Зарегистрироваться')]")))
-    driver.find_element(By.XPATH, "//a[contains(text(),'Зарегистрироваться')]").click()
-    #Переходим на страницу Регистрации
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, "//button[contains(text(),'Зарегистрироваться')]")))
-    driver.find_element(
-        By.XPATH, "//label[text()='Имя']/following-sibling::input[@type='text']").send_keys('stepan')
-    driver.find_element(
-        By.XPATH, "//label[text()='Email']/following-sibling::input").send_keys(email)
-    driver.find_element(
-        By.CSS_SELECTOR, "input[name='Пароль']").send_keys('123456')
-    driver.find_element(
-        By.XPATH, '//button[contains(text(), "Зарегистрироваться")]').click()
-    #Заходим по созданному аккаунту с неправильным паролем
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, "//h2[contains(text(),'Вход')]")))
-    driver.find_element(
-        By.XPATH, "//label[text()='Email']/following-sibling::input").send_keys(email)
-    driver.find_element(
-        By.XPATH, '//input[@type="password" and @name="Пароль"]').send_keys('654321')
-    driver.find_element(
-        By.XPATH, '//button[contains(text(), "Войти")]').click()
-    WebDriverWait(driver, 3).until(expected_conditions.url_matches("https://stellarburgers.nomoreparties.site/login"))
+    @pytest.fixture
+    def random_email(self):
+        random_digits = ''.join(random.choices(string.digits, k=5))
+        return f'stepan_shalagin_6345402_{random_digits}@yandex.ru'
+
+    def test_registration(self, driver, random_email):
+
+        WebDriverWait(driver, 2).until(expected_conditions.element_to_be_clickable(
+            RegistrationPageLocators.LK_LINK))
+        driver.find_element(*RegistrationPageLocators.LK_LINK).click()
+        WebDriverWait(driver, 3).until(expected_conditions.element_to_be_clickable(
+            RegistrationPageLocators.REGISTER_LINK))
+        driver.find_element(*RegistrationPageLocators.REGISTER_LINK).click()
+
+        WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            RegistrationPageLocators.REGISTER_BUTTON))
+        driver.find_element(
+            *RegistrationPageLocators.NAME_INPUT).send_keys(Data.name)
+        driver.find_element(
+            *RegistrationPageLocators.EMAIL_INPUT).send_keys(random_email)
+        driver.find_element(
+            *RegistrationPageLocators.PASSWORD_INPUT).send_keys(Data.password)
+        driver.find_element(
+            *RegistrationPageLocators.REGISTER_BUTTON).click()
+
+        WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            RegistrationPageLocators.LOGIN_HEADER))
+        driver.find_element(
+            *RegistrationPageLocators.EMAIL_INPUT).send_keys(random_email)
+        driver.find_element(
+            *RegistrationPageLocators.PASSWORD_INPUT).send_keys(Data.password)
+        driver.find_element(
+            *RegistrationPageLocators.LOGIN_BUTTON).click()
+
+        WebDriverWait(driver, 3).until(expected_conditions.url_matches(Pages.home_page))
+        driver.find_element(*RegistrationPageLocators.LK_LINK).click()
+        assert WebDriverWait(driver, 3).until(expected_conditions.text_to_be_present_in_element_value(
+            RegistrationPageLocators.LOGIN_INPUT, random_email)) is not None
+
+    def test_incorrect_password(self, driver, random_email):
+
+        WebDriverWait(driver, 2).until(expected_conditions.element_to_be_clickable(
+            RegistrationPageLocators.LK_LINK))
+        driver.find_element(*RegistrationPageLocators.LK_LINK).click()
+        WebDriverWait(driver, 3).until(expected_conditions.element_to_be_clickable(
+            RegistrationPageLocators.REGISTER_LINK))
+        driver.find_element(*RegistrationPageLocators.REGISTER_LINK).click()
+
+        WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            RegistrationPageLocators.REGISTER_BUTTON))
+        driver.find_element(
+            *RegistrationPageLocators.NAME_INPUT).send_keys(Data.name)
+        driver.find_element(
+            *RegistrationPageLocators.EMAIL_INPUT).send_keys(random_email)
+        driver.find_element(
+            *RegistrationPageLocators.PASSWORD_INPUT).send_keys(Data.password)
+        driver.find_element(
+            *RegistrationPageLocators.REGISTER_BUTTON).click()
+
+        WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            RegistrationPageLocators.LOGIN_HEADER))
+        driver.find_element(
+            *RegistrationPageLocators.EMAIL_INPUT).send_keys(random_email)
+        driver.find_element(
+            *RegistrationPageLocators.PASSWORD_INPUT).send_keys(Data.wrong_password)
+        driver.find_element(
+            *RegistrationPageLocators.LOGIN_BUTTON).click()
+        assert WebDriverWait(driver, 3).until(
+            expected_conditions.url_matches(Pages.login_page)) is not None

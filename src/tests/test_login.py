@@ -1,42 +1,34 @@
-import random
-import string
-import time
-
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-from conftest import driver
+
+from data import Pages
+from locators import LoginPageLocators
 
 
-def test_login_by_enter_by_account(driver):
-    WebDriverWait(driver, 3).until(expected_conditions.element_to_be_clickable(
-        (By.XPATH, "//button[contains(text(),'Войти в аккаунт')]")))
-    driver.find_element(By.XPATH, "//button[contains(text(),'Войти в аккаунт')]").click()
-    WebDriverWait(driver, 3).until(expected_conditions.element_to_be_clickable(
-        (By.XPATH, "//a[contains(text(),'Зарегистрироваться')]")))
+class TestLogin:
 
+    def test_login_by_enter_by_account(self, driver):
+        WebDriverWait(driver, 3).until(expected_conditions.element_to_be_clickable(LoginPageLocators.LOGIN_BUTTON))
+        driver.find_element(*LoginPageLocators.LOGIN_BUTTON).click()
+        assert WebDriverWait(driver, 3).until(expected_conditions.element_to_be_clickable(LoginPageLocators.REGISTER_LINK)) is not None
 
-def test_login_by_personal_kabinet(driver):
-    WebDriverWait(driver, 2).until(expected_conditions.element_to_be_clickable(
-        (By.XPATH, "//p[contains(text(),'Личный Кабинет')]")))
-    driver.find_element(By.XPATH, "//p[contains(text(),'Личный Кабинет')]").click()
-    WebDriverWait(driver, 3).until(expected_conditions.element_to_be_clickable(
-        (By.XPATH, "//a[contains(text(),'Зарегистрироваться')]")))
+    def test_login_by_personal_kabinet(self, driver):
+        WebDriverWait(driver, 2).until(expected_conditions.element_to_be_clickable(
+            LoginPageLocators.PERSONAL_KABINET_LINK))
+        driver.find_element(*LoginPageLocators.PERSONAL_KABINET_LINK).click()
+        assert WebDriverWait(driver, 3).until(expected_conditions.element_to_be_clickable(
+            LoginPageLocators.REGISTER_LINK)) is not None
 
+    def test_login_by_registration_form(self, driver):
+        driver.get(Pages.reg_page)
+        WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            LoginPageLocators.REGISTER_BUTTON))
+        driver.find_element(*LoginPageLocators.LOGIN_LINK).click()
+        assert WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            LoginPageLocators.LOGIN_BUTTON)) is not None
 
-def test_login_by_registration_form(driver):
-    driver.get("https://stellarburgers.nomoreparties.site/register")
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, "//button[contains(text(),'Зарегистрироваться')]")))
-    driver.find_element(By.XPATH, "//a[contains(text(),'Войти')]").click()
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, '//button[contains(text(), "Войти")]')))
-
-
-def test_login_by_forget_password(driver):
-    driver.get("https://stellarburgers.nomoreparties.site/forgot-password")
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, '//a[contains(text(),"Войти")]')))
-    driver.find_element(By.XPATH, '//a[contains(text(),"Войти")]').click()
-    WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
-        (By.XPATH, '//button[contains(text(), "Войти")]')))
+    def test_login_by_forget_password(self, driver):
+        driver.get(Pages.password_recovery_page)
+        driver.find_element(*LoginPageLocators.LOGIN_LINK).click()
+        assert WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located(
+            LoginPageLocators.LOGIN_BUTTON)) is not None
