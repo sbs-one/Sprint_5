@@ -1,7 +1,3 @@
-import random
-import string
-
-
 class Pages:
     reg_page = "https://stellarburgers.nomoreparties.site/register"
     account_page = "https://stellarburgers.nomoreparties.site/account"
